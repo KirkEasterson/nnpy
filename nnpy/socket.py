@@ -1,9 +1,18 @@
 from . import errors, ffi, nanomsg
 import sys
+import os
+
+mininet_path = os.environ.get("MININET_LISTENER", "../mininet_listener/")
+src_path = mininet_path+"src/"
+sys.path.insert(1,src_path)
+from mininet_listener import  EventHandler, EventListener
 
 NN_MSG = int(ffi.cast("size_t", -1))
 
 ustr = str if sys.version_info[0] > 2 else unicode
+
+_event_handler = None
+_event_listener = None
 
 class Socket(object):
     """
@@ -22,9 +31,14 @@ class Socket(object):
         .. seealso:: `nn_socket <http://nanomsg.org/v1.0.0/nn_socket.3.html>`_
         """
         self.sock = nanomsg.nn_socket(domain, protocol)
+        if _event_handler is None:
+            _event_handler = EventHandler()
+            _event_handler.sessionStarted()
+            _event_listener = EventListener(node_handler)
     
     def close(self):
         rc = nanomsg.nn_close(self.sock)
+        _event_handler.hostDeleted(self.sock)
         return errors.convert(rc, rc)
     
     def shutdown(self, who):
@@ -58,6 +72,7 @@ class Socket(object):
         addr = addr.encode() if isinstance(addr, ustr) else addr
         buf = ffi.new('char[]', addr)
         rc = nanomsg.nn_bind(self.sock, buf)
+        _event_handler.hostAdded(hostname, addr)
         return errors.convert(rc, rc)
     
     def connect(self, addr):
