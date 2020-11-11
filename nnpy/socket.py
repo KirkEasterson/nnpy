@@ -43,7 +43,7 @@ class Socket(object):
     
     def close(self):
         rc = nanomsg.nn_close(self.sock)
-        self._event_handler.socketClosed()
+        self._event_handler.close()
         return errors.convert(rc, rc)
     
     def shutdown(self, who):
@@ -72,20 +72,20 @@ class Socket(object):
             raise TypeError("value must be a int, str or bytes")
         rc = nanomsg.nn_setsockopt(self.sock, level, option, buf, vlen)
         errors.convert(rc)
-        self._event_handler.sockoptSet(level, option, value)
+        self._event_handler.setsockopt(level, option, value)
     
     def bind(self, addr):
         addr = addr.encode() if isinstance(addr, ustr) else addr
         buf = ffi.new('char[]', addr)
         rc = nanomsg.nn_bind(self.sock, buf)
-        self._event_handler.socketBinded(addr)
+        self._event_handler.bind(addr)
         return errors.convert(rc, rc)
     
     def connect(self, addr):
         addr = addr.encode() if isinstance(addr, ustr) else addr
         buf = ffi.new('char[]', addr)
         rc = nanomsg.nn_connect(self.sock, buf)
-        self._event_handler.socketConnected(addr)
+        self._event_handler.connect(addr)
         return errors.convert(rc, rc)
     
     def send(self, data, flags=0):
@@ -99,7 +99,7 @@ class Socket(object):
             data = data.encode() if isinstance(data, ustr) else data
             buf = ffi.new('char[%i]' % len(data), data)
         rc = nanomsg.nn_send(self.sock, buf, len(data), flags)
-        self._event_handler.dataSent(data, flags)
+        self._event_handler.send(data, flags)
         return errors.convert(rc, rc)
     
     def recv(self, flags=0):
@@ -108,7 +108,7 @@ class Socket(object):
         errors.convert(rc)
         s = ffi.buffer(buf[0], rc)[:]
         nanomsg.nn_freemsg(buf[0])
-        self._event_handler.dataRecv(flags)
+        self._event_handler.recv(flags)
         return s
         
     def get_statistic(self, statistic):
