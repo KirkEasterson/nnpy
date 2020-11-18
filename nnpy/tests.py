@@ -1,5 +1,5 @@
-from __future__ import print_function
-import nnpy, unittest
+# from __future__ import print_function
+import filecmp, nnpy, sys, unittest
 
 class Tests(unittest.TestCase):
     def test_basic(self):
@@ -32,6 +32,29 @@ class Tests(unittest.TestCase):
 
         with self.assertRaises(nnpy.errors.NNError):
             req.recv()
+
+    def test_ptf_code_generator(self):
+        
+        # Redirect stdout
+        sys.stdout = open('nnpy_stdout.txt', 'w')
+        sys.stderr = open('nnpy_stderr.txt', 'w')
+
+
+        pub = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
+        pub.bind('inproc://foo')
+
+        sub = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
+        sub.connect('inproc://foo')
+        sub.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, '')
+
+        pub.send('hello, world')
+        print(sub.recv())
+
+        pub.close()
+        sub.close()
+
+        assert(filecmp.cmp("nnpy_stdout.txt", "ptf_generator_stdout.txt"))
+        assert(filecmp.cmp("nnpy_stderr.txt", "ptf_generator_stderr.txt"))
 
 def suite():
     return unittest.makeSuite(Tests)

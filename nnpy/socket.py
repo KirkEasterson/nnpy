@@ -35,7 +35,7 @@ class Socket(object):
         global _event_listener
         self.sock = nanomsg.nn_socket(domain, protocol)
         if _event_listener is None:
-            _event_listener = EventListener()
+            _event_listener = EventListener("test")
         self._event_handler = EventHandler()
         self._event_handler.register(_event_listener)
         _event_listener.register(self._event_handler)
