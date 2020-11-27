@@ -39,7 +39,6 @@ class Tests(unittest.TestCase):
         sys.stdout = open('nnpy_stdout.txt', 'w')
         sys.stderr = open('nnpy_stderr.txt', 'w')
 
-
         pub = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
         pub.bind('inproc://foo')
 
@@ -52,6 +51,8 @@ class Tests(unittest.TestCase):
 
         pub.close()
         sub.close()
+
+        execfile('nanomsg_ptf.py')
 
         assert(filecmp.cmp("nnpy_stdout.txt", "ptf_generator_stdout.txt"))
         assert(filecmp.cmp("nnpy_stderr.txt", "ptf_generator_stderr.txt"))
