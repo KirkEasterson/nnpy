@@ -21,7 +21,7 @@ print(sub.recv())
 pub.close()
 sub.close()
 
-execfile('nanomsg_ptf.py')
+exec(open("./nanomsg_ptf.py").read())
 
 assert(filecmp.cmp("nnpy_stdout.txt", "ptf_generator_stdout.txt"))
 assert(filecmp.cmp("nnpy_stderr.txt", "ptf_generator_stderr.txt"))
