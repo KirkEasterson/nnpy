@@ -2,10 +2,10 @@ from . import errors, ffi, nanomsg
 import sys
 import os
 
-mininet_path = os.environ.get("MININET_LISTENER", "../mininet_listener/")
-src_path = mininet_path+"src/"
+network_listener_path = os.environ.get("NETWORK_LISTENER", "../network_listener/")
+src_path = network_listener_path+"src/"
 sys.path.insert(1,src_path)
-from mininet_listener import  EventHandler, EventListener
+from network_listener import  EventHandler, EventListener
 
 NN_MSG = int(ffi.cast("size_t", -1))
 
